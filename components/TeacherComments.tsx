@@ -1,53 +1,81 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../firebase.ts';
+import { 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  serverTimestamp 
+} from "firebase/firestore";
 
 interface Comment {
-  id: number;
+  id: string;
   name: string;
   subject: string;
   text: string;
   date: string;
+  createdAt: any;
 }
 
 const TeacherComments: React.FC = () => {
-  // Clear the initial hardcoded comments
   const [comments, setComments] = useState<Comment[]>([]);
-
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
     text: ''
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch comments from Firestore in real-time
+  useEffect(() => {
+    const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const commentsArray: Comment[] = [];
+      querySnapshot.forEach((doc) => {
+        commentsArray.push({ id: doc.id, ...doc.data() } as Comment);
+      });
+      setComments(commentsArray);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching comments: ", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.subject || !formData.text) return;
 
     setIsSubmitting(true);
     
-    // Simulate a brief delay for better UX
-    setTimeout(() => {
-      const newComment: Comment = {
-        id: Date.now(),
+    try {
+      await addDoc(collection(db, "comments"), {
         name: formData.name,
         subject: formData.subject,
         text: formData.text,
-        date: new Date().toLocaleDateString('ar-SA')
-      };
+        date: new Date().toLocaleDateString('ar-SA'),
+        createdAt: serverTimestamp()
+      });
 
-      setComments([newComment, ...comments]);
       setFormData({ name: '', subject: '', text: '' });
       setIsSubmitting(false);
-    }, 600);
+    } catch (error) {
+      console.error("Error adding comment: ", error);
+      setIsSubmitting(false);
+      alert("حدث خطأ أثناء إرسال التعليق. يرجى المحاولة مرة أخرى.");
+    }
   };
 
   return (
     <section id="comments" className="scroll-mt-24 space-y-16">
       <div className="text-center">
         <h2 className="text-4xl font-extrabold text-slate-900 mb-4">كلمات المعلمين</h2>
-        <p className="text-slate-500 text-lg">آراء المعلمين والمدربين في مسيرة يوسف المتميزة</p>
+        <p className="text-slate-500 text-lg">آراء المعلمين والمدربين في مسيرة يوسف المتميزة (محفوظة في قاعدة البيانات)</p>
         <div className="h-1.5 w-24 bg-emerald-600 mx-auto rounded-full mt-4"></div>
       </div>
 
@@ -102,7 +130,7 @@ const TeacherComments: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  جاري الإرسال...
+                  جاري الحفظ في فاير ستور...
                 </>
               ) : (
                 'إرسال التعليق'
@@ -114,7 +142,12 @@ const TeacherComments: React.FC = () => {
 
       {/* Comments List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {comments.length > 0 ? (
+        {loading ? (
+          <div className="col-span-full text-center py-12">
+            <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-500">جاري تحميل التعليقات من قاعدة البيانات...</p>
+          </div>
+        ) : comments.length > 0 ? (
           comments.map((comment) => (
             <div 
               key={comment.id}
@@ -134,7 +167,7 @@ const TeacherComments: React.FC = () => {
 
               <div className="flex items-center gap-4 border-t border-slate-100 pt-6">
                 <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold text-xl">
-                  {comment.name.replace('أ. ', '').charAt(0)}
+                  {comment.name.charAt(0)}
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900">{comment.name}</h4>
