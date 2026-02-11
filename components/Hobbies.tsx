@@ -6,7 +6,7 @@ interface HobbiesProps {
   items: Hobby[];
 }
 
-const Hobbies: React.FC<HobbiesProps> = ({ items }) => {
+const Hobbies: React.FC<HobbiesProps> = ({ items = [] }) => {
   const [selectedHobby, setSelectedHobby] = useState<Hobby | null>(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const Hobbies: React.FC<HobbiesProps> = ({ items }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {(items || []).map((hobby, idx) => (
+        {items.map((hobby, idx) => (
           <button 
             key={idx}
             onClick={() => setSelectedHobby(hobby)}
@@ -39,6 +39,10 @@ const Hobbies: React.FC<HobbiesProps> = ({ items }) => {
             <p className="text-slate-500 text-center text-base leading-relaxed">
               {hobby.description}
             </p>
+            <div className="mt-6 text-emerald-600 font-bold text-sm flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span>اقرأ القصة</span>
+              <span>✨</span>
+            </div>
           </button>
         ))}
       </div>
@@ -64,7 +68,7 @@ const Hobbies: React.FC<HobbiesProps> = ({ items }) => {
             </div>
             <div className="p-8 space-y-6">
               <p className="text-slate-700 text-xl leading-relaxed">{selectedHobby.longDesc}</p>
-              <button onClick={() => setSelectedHobby(null)} className="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl">إغلاق</button>
+              <button onClick={() => setSelectedHobby(null)} className="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg">إغلاق</button>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ interface AchievementsProps {
   items: any[];
 }
 
-const Achievements: React.FC<AchievementsProps> = ({ items }) => {
+const Achievements: React.FC<AchievementsProps> = ({ items = [] }) => {
   return (
     <section>
       <div className="text-center mb-12">
@@ -14,7 +14,7 @@ const Achievements: React.FC<AchievementsProps> = ({ items }) => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {(items || []).map((item, idx) => (
+        {items.map((item, idx) => (
           <div 
             key={idx}
             className="group relative bg-white p-8 rounded-3xl shadow-lg border border-slate-100 transition-all hover:-translate-y-2 hover:shadow-2xl"

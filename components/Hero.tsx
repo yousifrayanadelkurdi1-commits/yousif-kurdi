@@ -28,6 +28,11 @@ const Hero: React.FC<HeroProps> = ({ name, image }) => {
         <p className="text-xl md:text-2xl font-medium text-emerald-50 max-w-2xl mx-auto">
           طموح لا يعرف الحدود، وإبداع في كل خطوة
         </p>
+        <div className="flex justify-center gap-4 mt-8">
+          <span className="px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm border border-white/20 text-sm">طالب مجتهد</span>
+          <span className="px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm border border-white/20 text-sm">شاعر المدرسة</span>
+          <span className="px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm border border-white/20 text-sm">محب للسباحة</span>
+        </div>
       </div>
 
       <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent"></div>

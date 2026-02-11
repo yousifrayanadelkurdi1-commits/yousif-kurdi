@@ -9,7 +9,7 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
-  const [formData, setFormData] = useState(data);
+  const [formData, setFormData] = useState(JSON.parse(JSON.stringify(data)));
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
@@ -17,7 +17,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
     setSaving(true);
     try {
       await updateDoc(doc(db, "site", "content"), formData);
-      alert("تم حفظ التعديلات بنجاح في قاعدة البيانات! ✨");
+      alert("تم حفظ التغييرات بنجاح! ✨");
       onClose();
     } catch (error) {
       console.error(error);
@@ -26,57 +26,79 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
     setSaving(false);
   };
 
-  const addAchievement = () => {
-    const newItems = [...formData.achievements, { title: "إنجاز جديد", description: "وصف الإنجاز", icon: "🏆", tag: "عام", color: "bg-blue-100 text-blue-800 border-blue-200" }];
-    setFormData({...formData, achievements: newItems});
+  const addItem = (type: 'achievements' | 'hobbies') => {
+    const newItem = type === 'achievements' 
+      ? { title: "إنجاز جديد", description: "وصف الإنجاز", icon: "🏆", tag: "عام", color: "bg-blue-100 text-blue-800 border-blue-200" }
+      : { name: "هواية جديدة", icon: "🎨", description: "وصف قصير", longDesc: "وصف تفصيلي", imageUrl: "https://picsum.photos/seed/new/800/600", color: "bg-purple-500" };
+    
+    setFormData({
+      ...formData,
+      [type]: [...formData[type], newItem]
+    });
   };
 
-  const removeAchievement = (index: number) => {
-    const newItems = formData.achievements.filter((_: any, i: number) => i !== index);
-    setFormData({...formData, achievements: newItems});
+  const removeItem = (type: 'achievements' | 'hobbies', index: number) => {
+    const newList = [...formData[type]];
+    newList.splice(index, 1);
+    setFormData({ ...formData, [type]: newList });
+  };
+
+  const updateItem = (type: 'achievements' | 'hobbies', index: number, field: string, value: string) => {
+    const newList = [...formData[type]];
+    newList[index][field] = value;
+    setFormData({ ...formData, [type]: newList });
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 overflow-hidden">
+      <div className="bg-white w-full max-w-5xl h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Header */}
-        <div className="p-6 bg-emerald-600 text-white flex justify-between items-center">
-          <h2 className="text-2xl font-bold">لوحة تحكم المسؤول 🛠️</h2>
-          <button onClick={onClose} className="text-white/80 hover:text-white">إغلاق ✕</button>
+        <div className="p-6 bg-emerald-600 text-white flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🛠️</span>
+            <h2 className="text-2xl font-bold">لوحة تحكم يوسف</h2>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors text-2xl">✕</button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b overflow-x-auto bg-slate-50">
+        <div className="flex border-b bg-slate-50 shrink-0">
           {['general', 'achievements', 'hobbies'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-4 font-bold transition-colors ${activeTab === tab ? 'text-emerald-600 border-b-2 border-emerald-600 bg-white' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`flex-1 py-4 font-bold transition-all border-b-2 ${
+                activeTab === tab 
+                  ? 'text-emerald-600 border-emerald-600 bg-white' 
+                  : 'text-slate-400 border-transparent hover:bg-slate-100'
+              }`}
             >
               {tab === 'general' ? 'إعدادات عامة' : tab === 'achievements' ? 'الإنجازات' : 'الهوايات'}
             </button>
           ))}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6">
+        {/* Form Content */}
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30">
           {activeTab === 'general' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold mb-2">اسم الطالب</label>
-                <input type="text" className="w-full p-3 border rounded-xl" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            <div className="grid gap-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">الاسم</label>
+                  <input type="text" className="w-full p-3 rounded-xl border" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">رابط الصورة الشخصية</label>
+                  <input type="text" className="w-full p-3 rounded-xl border" value={formData.heroImage} onChange={e => setFormData({...formData, heroImage: e.target.value})} />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">رابط الصورة الشخصية</label>
-                <input type="text" className="w-full p-3 border rounded-xl" value={formData.heroImage} onChange={e => setFormData({...formData, heroImage: e.target.value})} />
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">نبذة عني</label>
+                <textarea rows={4} className="w-full p-3 rounded-xl border" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
               </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">نبذة عني</label>
-                <textarea rows={3} className="w-full p-3 border rounded-xl" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">نص الطموح المستقبلي</label>
-                <textarea rows={3} className="w-full p-3 border rounded-xl" value={formData.futureText} onChange={e => setFormData({...formData, futureText: e.target.value})} />
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">نص الطموح المستقبلي</label>
+                <textarea rows={3} className="w-full p-3 rounded-xl border" value={formData.futureText} onChange={e => setFormData({...formData, futureText: e.target.value})} />
               </div>
             </div>
           )}
@@ -84,46 +106,48 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
           {activeTab === 'achievements' && (
             <div className="space-y-6">
               {formData.achievements.map((item: any, idx: number) => (
-                <div key={idx} className="p-4 border rounded-2xl bg-slate-50 relative group">
-                  <button onClick={() => removeAchievement(idx)} className="absolute top-2 left-2 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">حذف</button>
-                  <div className="grid grid-cols-2 gap-4">
-                    <input type="text" placeholder="العنوان" className="p-2 border rounded-lg" value={item.title} onChange={e => {
-                      const newArr = [...formData.achievements];
-                      newArr[idx].title = e.target.value;
-                      setFormData({...formData, achievements: newArr});
-                    }} />
-                    <input type="text" placeholder="أيقونة" className="p-2 border rounded-lg" value={item.icon} onChange={e => {
-                      const newArr = [...formData.achievements];
-                      newArr[idx].icon = e.target.value;
-                      setFormData({...formData, achievements: newArr});
-                    }} />
+                <div key={idx} className="bg-white p-6 rounded-2xl border shadow-sm relative group">
+                  <button onClick={() => removeItem('achievements', idx)} className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                    <input placeholder="العنوان" className="p-2 border rounded-lg" value={item.title} onChange={e => updateItem('achievements', idx, 'title', e.target.value)} />
+                    <input placeholder="الأيقونة" className="p-2 border rounded-lg" value={item.icon} onChange={e => updateItem('achievements', idx, 'icon', e.target.value)} />
+                    <input placeholder="التصنيف" className="p-2 border rounded-lg" value={item.tag} onChange={e => updateItem('achievements', idx, 'tag', e.target.value)} />
                   </div>
-                  <textarea placeholder="الوصف" className="w-full mt-2 p-2 border rounded-lg" value={item.description} onChange={e => {
-                    const newArr = [...formData.achievements];
-                    newArr[idx].description = e.target.value;
-                    setFormData({...formData, achievements: newArr});
-                  }} />
+                  <textarea placeholder="الوصف" className="w-full p-2 border rounded-lg" value={item.description} onChange={e => updateItem('achievements', idx, 'description', e.target.value)} />
                 </div>
               ))}
-              <button onClick={addAchievement} className="w-full py-3 border-2 border-dashed border-emerald-300 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">+ إضافة إنجاز</button>
+              <button onClick={() => addItem('achievements')} className="w-full py-4 border-2 border-dashed border-emerald-300 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-all">+ إضافة إنجاز جديد</button>
             </div>
           )}
 
           {activeTab === 'hobbies' && (
-            <div className="text-center py-10 text-slate-400">
-               (يمكنك تعديل الهوايات بنفس الطريقة - قيد التطوير للتنسيق)
+            <div className="space-y-6">
+              {formData.hobbies.map((item: any, idx: number) => (
+                <div key={idx} className="bg-white p-6 rounded-2xl border shadow-sm relative group">
+                  <button onClick={() => removeItem('hobbies', idx)} className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                    <input placeholder="اسم الهواية" className="p-2 border rounded-lg" value={item.name} onChange={e => updateItem('hobbies', idx, 'name', e.target.value)} />
+                    <input placeholder="الأيقونة" className="p-2 border rounded-lg" value={item.icon} onChange={e => updateItem('hobbies', idx, 'icon', e.target.value)} />
+                    <input placeholder="رابط الصورة" className="p-2 border rounded-lg" value={item.imageUrl} onChange={e => updateItem('hobbies', idx, 'imageUrl', e.target.value)} />
+                  </div>
+                  <input placeholder="وصف قصير" className="w-full p-2 border rounded-lg mb-2" value={item.description} onChange={e => updateItem('hobbies', idx, 'description', e.target.value)} />
+                  <textarea placeholder="الوصف التفصيلي" className="w-full p-2 border rounded-lg" value={item.longDesc} onChange={e => updateItem('hobbies', idx, 'longDesc', e.target.value)} />
+                </div>
+              ))}
+              <button onClick={() => addItem('hobbies')} className="w-full py-4 border-2 border-dashed border-emerald-300 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-all">+ إضافة هواية جديدة</button>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t bg-slate-50 flex gap-4">
+        {/* Action Footer */}
+        <div className="p-6 border-t bg-white flex gap-4 shrink-0">
           <button 
+            onClick={handleSave} 
             disabled={saving}
-            onClick={handleSave}
-            className="flex-1 py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all shadow-lg"
+            className="flex-1 py-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
           >
-            {saving ? 'جاري الحفظ...' : 'حفظ كافة التغييرات'}
+            {saving ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : "💾"}
+            حفظ كافة التغييرات
           </button>
           <button onClick={onClose} className="px-8 py-4 bg-slate-200 text-slate-700 font-bold rounded-2xl hover:bg-slate-300">إلغاء</button>
         </div>

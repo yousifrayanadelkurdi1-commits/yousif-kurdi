@@ -16,6 +16,23 @@ const Future: React.FC<FutureProps> = ({ text }) => {
           <p className="text-2xl max-w-2xl mx-auto leading-relaxed text-emerald-50 font-medium italic">
             "{text}"
           </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20">
+              <div className="text-3xl mb-2">🏫</div>
+              <h4 className="font-bold mb-1">المرحلة المتوسطة</h4>
+              <p className="text-sm opacity-80 text-emerald-100">خطوتي القادمة نحو المجد</p>
+            </div>
+            <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20">
+              <div className="text-3xl mb-2">📈</div>
+              <h4 className="font-bold mb-1">الاستمرار في التفوق</h4>
+              <p className="text-sm opacity-80 text-emerald-100">المحافظة على معدل 100%</p>
+            </div>
+            <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/20">
+              <div className="text-3xl mb-2">🎖️</div>
+              <h4 className="font-bold mb-1">خدمة المجتمع</h4>
+              <p className="text-sm opacity-80 text-emerald-100">أن أكون فرداً نافعاً ومحترماً</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
