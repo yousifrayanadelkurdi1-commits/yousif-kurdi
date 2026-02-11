@@ -1,24 +1,11 @@
 
 import React from 'react';
 
-const Achievements: React.FC = () => {
-  const achievements = [
-    {
-      title: "لقب أفضل شاعر",
-      description: "الفوز بلقب أفضل شاعر في مسابقة المدرسة السنوية بجدارة وإبداع.",
-      icon: "✍️",
-      tag: "مسابقة المدرسة",
-      color: "bg-teal-100 text-teal-800 border-teal-200"
-    },
-    {
-      title: "التفوق الدراسي المثالي",
-      description: "الحصول على معدل 100% في الصف السادس الابتدائي، محققاً العلامة الكاملة.",
-      icon: "⭐",
-      tag: "الصف السادس",
-      color: "bg-emerald-100 text-emerald-800 border-emerald-200"
-    }
-  ];
+interface AchievementsProps {
+  items: any[];
+}
 
+const Achievements: React.FC<AchievementsProps> = ({ items }) => {
   return (
     <section>
       <div className="text-center mb-12">
@@ -27,7 +14,7 @@ const Achievements: React.FC = () => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {achievements.map((item, idx) => (
+        {(items || []).map((item, idx) => (
           <div 
             key={idx}
             className="group relative bg-white p-8 rounded-3xl shadow-lg border border-slate-100 transition-all hover:-translate-y-2 hover:shadow-2xl"

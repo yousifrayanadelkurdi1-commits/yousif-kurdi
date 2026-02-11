@@ -1,7 +1,11 @@
 
 import React from 'react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onAdminClick: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   return (
     <footer className="bg-slate-900 text-slate-400 py-12 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
@@ -11,9 +15,10 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="flex gap-6">
-          <span className="hover:text-white cursor-pointer transition-colors">عن يوسف</span>
-          <span className="hover:text-white cursor-pointer transition-colors">الإنجازات</span>
-          <span className="hover:text-white cursor-pointer transition-colors">الهوايات</span>
+          <button onClick={onAdminClick} className="hover:text-emerald-400 text-sm transition-colors flex items-center gap-2">
+            <span>⚙️</span>
+            إدارة الموقع
+          </button>
         </div>
         
         <div className="text-sm">

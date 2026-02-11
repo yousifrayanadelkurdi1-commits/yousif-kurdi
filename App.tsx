@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Hero from './components/Hero.tsx';
 import About from './components/About.tsx';
 import Hobbies from './components/Hobbies.tsx';
@@ -7,27 +7,77 @@ import Achievements from './components/Achievements.tsx';
 import TeacherComments from './components/TeacherComments.tsx';
 import Future from './components/Future.tsx';
 import Footer from './components/Footer.tsx';
+import PoetryCorner from './components/PoetryCorner.tsx';
+import AdminDashboard from './components/AdminDashboard.tsx';
+import { db } from './firebase.ts';
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
 const App: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // جلب إعدادات الموقع العامة من Firestore
+    const unsub = onSnapshot(doc(db, "site", "content"), (docSnap) => {
+      if (docSnap.exists()) {
+        setData(docSnap.data());
+      } else {
+        // بيانات افتراضية في حال كانت القاعدة فارغة
+        const initialData = {
+          name: "يوسف",
+          bio: "اسمي يوسف، وأنا طالب مجتهد وأسعى دائماً للنجاح والتطور. أكره التنمر لأنه يؤذي الآخرين وأؤمن بأهمية الاحترام والتعاون بين الجميع.",
+          futureText: "أتمنى أن أنتظم في الدراسة وأكمل تعليمي في المرحلة المتوسطة وأحقق النجاح بإذن الله.",
+          heroImage: "https://picsum.photos/seed/yousef/150/150",
+          achievements: [
+            { title: "لقب أفضل شاعر", description: "الفوز بلقب أفضل شاعر في مسابقة المدرسة السنوية بجدارة وإبداع.", icon: "✍️", tag: "مسابقة المدرسة", color: "bg-teal-100 text-teal-800 border-teal-200" },
+            { title: "التفوق الدراسي المثالي", description: "الحصول على معدل 100% في الصف السادس الابتدائي، محققاً العلامة الكاملة.", icon: "⭐", tag: "الصف السادس", color: "bg-emerald-100 text-emerald-800 border-emerald-200" }
+          ],
+          hobbies: [
+            { name: "السباحة", icon: "🏊‍♂️", description: "أحب السباحة لأنها تبني القوة والثقة بالنفس.", longDesc: "السباحة هي ملاذي الآمن ومكاني المفضل لتجديد الطاقة...", imageUrl: "https://images.unsplash.com/photo-1530549387634-e7a015056a9f?q=80&w=800&auto=format&fit=crop", color: "bg-teal-500" },
+            { name: "الغناء", icon: "🎤", description: "التعبير عن مشاعري من خلال الألحان الجميلة.", longDesc: "الغناء بالنسبة لي هو لغة القلب...", imageUrl: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=800&auto=format&fit=crop", color: "bg-emerald-500" }
+          ]
+        };
+        setDoc(doc(db, "site", "content"), initialData);
+        setData(initialData);
+      }
+      setLoading(false);
+    });
+
+    return () => unsub();
+  }, []);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden">
-      <Hero name="يوسف" />
+      {isAdmin && <AdminDashboard data={data} onClose={() => setIsAdmin(false)} />}
+      
+      <Hero name={data.name} image={data.heroImage} />
       
       <main className="max-w-6xl mx-auto px-4 py-12 space-y-24">
-        <About 
-          bio="اسمي يوسف، وأنا طالب مجتهد وأسعى دائماً للنجاح والتطور. أكره التنمر لأنه يؤذي الآخرين وأؤمن بأهمية الاحترام والتعاون بين الجميع."
-        />
+        <About bio={data.bio} />
         
-        <Achievements />
+        <Achievements items={data.achievements} />
         
-        <Hobbies />
+        <Hobbies items={data.hobbies} />
+
+        <PoetryCorner />
 
         <TeacherComments />
         
-        <Future />
+        <Future text={data.futureText} />
       </main>
 
-      <Footer />
+      <Footer onAdminClick={() => {
+        const pass = prompt("أدخل كلمة مرور المسؤول:");
+        if (pass === "1234") setIsAdmin(true);
+        else alert("كلمة مرور خاطئة!");
+      }} />
     </div>
   );
 };
