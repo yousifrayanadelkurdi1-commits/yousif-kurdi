@@ -1,0 +1,56 @@
+
+import React from 'react';
+
+const Achievements: React.FC = () => {
+  const achievements = [
+    {
+      title: "لقب أفضل شاعر",
+      description: "الفوز بلقب أفضل شاعر في مسابقة المدرسة السنوية بجدارة وإبداع.",
+      icon: "✍️",
+      tag: "مسابقة المدرسة",
+      color: "bg-teal-100 text-teal-800 border-teal-200"
+    },
+    {
+      title: "التفوق الدراسي المثالي",
+      description: "الحصول على معدل 100% في الصف السادس الابتدائي، محققاً العلامة الكاملة.",
+      icon: "⭐",
+      tag: "الصف السادس",
+      color: "bg-emerald-100 text-emerald-800 border-emerald-200"
+    }
+  ];
+
+  return (
+    <section>
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-extrabold text-slate-900 mb-4">إنجازاتي المتميزة</h2>
+        <div className="h-1.5 w-24 bg-emerald-600 mx-auto rounded-full"></div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {achievements.map((item, idx) => (
+          <div 
+            key={idx}
+            className="group relative bg-white p-8 rounded-3xl shadow-lg border border-slate-100 transition-all hover:-translate-y-2 hover:shadow-2xl"
+          >
+            <div className="absolute top-4 left-4 text-4xl opacity-20 group-hover:opacity-100 transition-opacity">
+               {item.icon}
+            </div>
+            <div className={`inline-block px-3 py-1 rounded-full text-xs font-bold border mb-4 ${item.color}`}>
+              {item.tag}
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-3">{item.title}</h3>
+            <p className="text-slate-600 text-lg leading-relaxed">
+              {item.description}
+            </p>
+            <div className="mt-6 flex items-center text-emerald-600 font-bold cursor-pointer group-hover:underline">
+               <span>عرض المزيد من التفاصيل</span>
+               <span className="mr-2">←</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default Achievements;

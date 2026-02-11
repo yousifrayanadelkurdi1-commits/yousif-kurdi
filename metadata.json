@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Yousef's Portfolio - ملف إنجاز يوسف",
+  "description": "A vibrant and interactive student achievement portfolio for Yousef, showcasing his accomplishments, hobbies, and dreams.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
