@@ -42,10 +42,6 @@ const Achievements: React.FC = () => {
             <p className="text-slate-600 text-lg leading-relaxed">
               {item.description}
             </p>
-            <div className="mt-6 flex items-center text-emerald-600 font-bold cursor-pointer group-hover:underline">
-               <span>عرض المزيد من التفاصيل</span>
-               <span className="mr-2">←</span>
-            </div>
           </div>
         ))}
       </div>

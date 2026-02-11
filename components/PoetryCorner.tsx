@@ -11,7 +11,13 @@ const PoetryCorner: React.FC = () => {
     if (!topic) return;
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // التأكد من وجود مفتاح API قبل المحاولة
+      const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+      if (!apiKey) {
+        setPoem("مفتاح API غير متوفر حالياً.");
+        return;
+      }
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `أنت شاعر ملهم تساعد الطالب يوسف، الملقب بأفضل شاعر في المدرسة، على كتابة بيتين من الشعر الجميل والملهم حول موضوع: ${topic}. اجعل الأبيات مناسبة لعمره كطالب متميز يحب النجاح.`,

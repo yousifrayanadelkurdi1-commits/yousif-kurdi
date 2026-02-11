@@ -1,12 +1,12 @@
 
 import React from 'react';
-import Hero from './components/Hero';
-import About from './components/About';
-import Hobbies from './components/Hobbies';
-import Achievements from './components/Achievements';
-import TeacherComments from './components/TeacherComments';
-import Future from './components/Future';
-import Footer from './components/Footer';
+import Hero from './components/Hero.tsx';
+import About from './components/About.tsx';
+import Hobbies from './components/Hobbies.tsx';
+import Achievements from './components/Achievements.tsx';
+import TeacherComments from './components/TeacherComments.tsx';
+import Future from './components/Future.tsx';
+import Footer from './components/Footer.tsx';
 
 const App: React.FC = () => {
   return (
