@@ -11,13 +11,7 @@ const PoetryCorner: React.FC = () => {
     if (!topic) return;
     setLoading(true);
     try {
-      // التأكد من وجود مفتاح API قبل المحاولة
-      const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
-      if (!apiKey) {
-        setPoem("مفتاح API غير متوفر حالياً.");
-        return;
-      }
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `أنت شاعر ملهم تساعد الطالب يوسف، الملقب بأفضل شاعر في المدرسة، على كتابة بيتين من الشعر الجميل والملهم حول موضوع: ${topic}. اجعل الأبيات مناسبة لعمره كطالب متميز يحب النجاح.`,
@@ -47,7 +41,7 @@ const PoetryCorner: React.FC = () => {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="اكتب موضوعاً (مثلاً: النجاح، الأم، الوطن...)"
-            className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder:text-slate-400 text-white"
+            className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder:text-slate-400 text-white text-right"
           />
           <button 
             onClick={generatePoem}
@@ -60,7 +54,7 @@ const PoetryCorner: React.FC = () => {
 
         {poem && (
           <div className="p-8 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 animate-fade-in">
-            <pre className="whitespace-pre-wrap font-serif text-xl md:text-2xl italic leading-loose text-emerald-100">
+            <pre className="whitespace-pre-wrap font-serif text-xl md:text-2xl italic leading-loose text-emerald-100 text-center">
               {poem}
             </pre>
           </div>

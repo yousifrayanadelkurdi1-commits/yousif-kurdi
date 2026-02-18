@@ -7,7 +7,7 @@ interface AchievementsProps {
 
 const Achievements: React.FC<AchievementsProps> = ({ items = [] }) => {
   return (
-    <section>
+    <section id="achievements" className="scroll-mt-24">
       <div className="text-center mb-12">
         <h2 className="text-4xl font-extrabold text-slate-900 mb-4">إنجازاتي المتميزة</h2>
         <div className="h-1.5 w-24 bg-emerald-600 mx-auto rounded-full"></div>

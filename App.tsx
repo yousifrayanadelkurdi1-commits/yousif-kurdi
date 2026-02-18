@@ -8,6 +8,7 @@ import TeacherComments from './components/TeacherComments.tsx';
 import Future from './components/Future.tsx';
 import Footer from './components/Footer.tsx';
 import AdminDashboard from './components/AdminDashboard.tsx';
+import PersonalQuiz from './components/PersonalQuiz.tsx';
 import { db } from './firebase.ts';
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
@@ -27,7 +28,7 @@ const App: React.FC = () => {
         const initialData = {
           name: "يوسف",
           heroImage: "https://picsum.photos/seed/yousef/150/150",
-          bio: "اسمي يوسف، وأنا طالب مجتهد وأسعى دائماً للنجاح والتطور. أكره التنمر لأنه يؤذي الآخرين وأؤمن بأهمية الاحترام والتعاون بين الجميع.",
+          bio: "اسمي يوسف، عمري 13 عاماً، وأنا طالب مجتهد وأسعى دائماً للنجاح والتطور بطموح لا يهدأ. أؤمن بأهمية الاحترام المتبادل والتعاون بين الجميع لبناء بيئة تعليمية رائعة. أنا محب لنادي الأهلي 💚 وأسعى دائماً للتميز في دراستي وهواياتي.",
           futureText: "أتمنى أن أنتظم في الدراسة وأكمل تعليمي في المرحلة المتوسطة وأحقق النجاح بإذن الله.",
           achievements: [
             { title: "لقب أفضل شاعر", description: "الفوز بلقب أفضل شاعر في مسابقة المدرسة السنوية بجدارة وإبداع.", icon: "✍️", tag: "مسابقة المدرسة", color: "bg-teal-100 text-teal-800 border-teal-200" },
@@ -73,10 +74,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 overflow-x-hidden">
-      {/* واجهة تسجيل الدخول المخصصة */}
       {showLogin && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className={`bg-white p-8 rounded-[2rem] shadow-2xl w-full max-w-sm transform transition-all ${loginError ? 'animate-bounce' : ''}`}>
+          <div className={`bg-white p-8 rounded-[2rem] shadow-2xl w-full max-sm:max-w-xs transform transition-all ${loginError ? 'animate-bounce' : ''}`}>
             <h3 className="text-2xl font-bold text-center mb-6 text-slate-800">تسجيل دخول المسؤول 🔐</h3>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
@@ -124,7 +124,7 @@ const App: React.FC = () => {
         
         <Hobbies items={data.hobbies} />
 
-        {/* تمت إزالة ركن الشاعر بناءً على طلب المستخدم */}
+        <PersonalQuiz />
 
         <TeacherComments />
         

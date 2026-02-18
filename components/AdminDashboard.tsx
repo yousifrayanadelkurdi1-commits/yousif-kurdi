@@ -9,14 +9,30 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
-  const [formData, setFormData] = useState(JSON.parse(JSON.stringify(data)));
+  // استخدام طريقة نسخ آمنة وبسيطة لتجنب تكرار الكائنات في الذاكرة
+  const [formData, setFormData] = useState(() => {
+    const cleanData = { ...data };
+    if (cleanData.achievements) cleanData.achievements = cleanData.achievements.map((a: any) => ({ ...a }));
+    if (cleanData.hobbies) cleanData.hobbies = cleanData.hobbies.map((h: any) => ({ ...h }));
+    return cleanData;
+  });
+  
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateDoc(doc(db, "site", "content"), formData);
+      // نرسل فقط البيانات النظيفة لفايرستور
+      const dataToSave = {
+        name: formData.name,
+        heroImage: formData.heroImage,
+        bio: formData.bio,
+        futureText: formData.futureText,
+        achievements: formData.achievements,
+        hobbies: formData.hobbies
+      };
+      await updateDoc(doc(db, "site", "content"), dataToSave);
       alert("تم حفظ التغييرات بنجاح! ✨");
       onClose();
     } catch (error) {
@@ -45,7 +61,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
 
   const updateItem = (type: 'achievements' | 'hobbies', index: number, field: string, value: string) => {
     const newList = [...formData[type]];
-    newList[index][field] = value;
+    newList[index] = { ...newList[index], [field]: value };
     setFormData({ ...formData, [type]: newList });
   };
 
@@ -62,7 +78,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b bg-slate-50 shrink-0">
+        <div className="flex border-b bg-slate-50 shrink-0 text-right">
           {['general', 'achievements', 'hobbies'].map((tab) => (
             <button
               key={tab}
@@ -79,41 +95,41 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30">
+        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30 text-right">
           {activeTab === 'general' && (
             <div className="grid gap-6">
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4 text-right">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">الاسم</label>
-                  <input type="text" className="w-full p-3 rounded-xl border" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                  <label className="text-sm font-bold text-slate-700 block">الاسم</label>
+                  <input type="text" className="w-full p-3 rounded-xl border text-right" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">رابط الصورة الشخصية</label>
-                  <input type="text" className="w-full p-3 rounded-xl border" value={formData.heroImage} onChange={e => setFormData({...formData, heroImage: e.target.value})} />
+                  <label className="text-sm font-bold text-slate-700 block">رابط الصورة الشخصية</label>
+                  <input type="text" className="w-full p-3 rounded-xl border text-left" dir="ltr" value={formData.heroImage} onChange={e => setFormData({...formData, heroImage: e.target.value})} />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">نبذة عني</label>
-                <textarea rows={4} className="w-full p-3 rounded-xl border" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
+                <label className="text-sm font-bold text-slate-700 block">نبذة عني</label>
+                <textarea rows={4} className="w-full p-3 rounded-xl border text-right" value={formData.bio} onChange={e => setFormData({...formData, bio: e.target.value})} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">نص الطموح المستقبلي</label>
-                <textarea rows={3} className="w-full p-3 rounded-xl border" value={formData.futureText} onChange={e => setFormData({...formData, futureText: e.target.value})} />
+                <label className="text-sm font-bold text-slate-700 block">نص الطموح المستقبلي</label>
+                <textarea rows={3} className="w-full p-3 rounded-xl border text-right" value={formData.futureText} onChange={e => setFormData({...formData, futureText: e.target.value})} />
               </div>
             </div>
           )}
 
           {activeTab === 'achievements' && (
-            <div className="space-y-6">
+            <div className="space-y-6 text-right">
               {formData.achievements.map((item: any, idx: number) => (
                 <div key={idx} className="bg-white p-6 rounded-2xl border shadow-sm relative group">
                   <button onClick={() => removeItem('achievements', idx)} className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
-                    <input placeholder="العنوان" className="p-2 border rounded-lg" value={item.title} onChange={e => updateItem('achievements', idx, 'title', e.target.value)} />
-                    <input placeholder="الأيقونة" className="p-2 border rounded-lg" value={item.icon} onChange={e => updateItem('achievements', idx, 'icon', e.target.value)} />
-                    <input placeholder="التصنيف" className="p-2 border rounded-lg" value={item.tag} onChange={e => updateItem('achievements', idx, 'tag', e.target.value)} />
+                    <input placeholder="العنوان" className="p-2 border rounded-lg text-right" value={item.title} onChange={e => updateItem('achievements', idx, 'title', e.target.value)} />
+                    <input placeholder="الأيقونة" className="p-2 border rounded-lg text-center" value={item.icon} onChange={e => updateItem('achievements', idx, 'icon', e.target.value)} />
+                    <input placeholder="التصنيف" className="p-2 border rounded-lg text-right" value={item.tag} onChange={e => updateItem('achievements', idx, 'tag', e.target.value)} />
                   </div>
-                  <textarea placeholder="الوصف" className="w-full p-2 border rounded-lg" value={item.description} onChange={e => updateItem('achievements', idx, 'description', e.target.value)} />
+                  <textarea placeholder="الوصف" className="w-full p-2 border rounded-lg text-right" value={item.description} onChange={e => updateItem('achievements', idx, 'description', e.target.value)} />
                 </div>
               ))}
               <button onClick={() => addItem('achievements')} className="w-full py-4 border-2 border-dashed border-emerald-300 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-all">+ إضافة إنجاز جديد</button>
@@ -121,17 +137,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ data, onClose }) => {
           )}
 
           {activeTab === 'hobbies' && (
-            <div className="space-y-6">
+            <div className="space-y-6 text-right">
               {formData.hobbies.map((item: any, idx: number) => (
                 <div key={idx} className="bg-white p-6 rounded-2xl border shadow-sm relative group">
                   <button onClick={() => removeItem('hobbies', idx)} className="absolute -top-2 -left-2 w-8 h-8 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
                   <div className="grid md:grid-cols-3 gap-4 mb-4">
-                    <input placeholder="اسم الهواية" className="p-2 border rounded-lg" value={item.name} onChange={e => updateItem('hobbies', idx, 'name', e.target.value)} />
-                    <input placeholder="الأيقونة" className="p-2 border rounded-lg" value={item.icon} onChange={e => updateItem('hobbies', idx, 'icon', e.target.value)} />
-                    <input placeholder="رابط الصورة" className="p-2 border rounded-lg" value={item.imageUrl} onChange={e => updateItem('hobbies', idx, 'imageUrl', e.target.value)} />
+                    <input placeholder="اسم الهواية" className="p-2 border rounded-lg text-right" value={item.name} onChange={e => updateItem('hobbies', idx, 'name', e.target.value)} />
+                    <input placeholder="الأيقونة" className="p-2 border rounded-lg text-center" value={item.icon} onChange={e => updateItem('hobbies', idx, 'icon', e.target.value)} />
+                    <input placeholder="رابط الصورة" className="p-2 border rounded-lg text-left" dir="ltr" value={item.imageUrl} onChange={e => updateItem('hobbies', idx, 'imageUrl', e.target.value)} />
                   </div>
-                  <input placeholder="وصف قصير" className="w-full p-2 border rounded-lg mb-2" value={item.description} onChange={e => updateItem('hobbies', idx, 'description', e.target.value)} />
-                  <textarea placeholder="الوصف التفصيلي" className="w-full p-2 border rounded-lg" value={item.longDesc} onChange={e => updateItem('hobbies', idx, 'longDesc', e.target.value)} />
+                  <input placeholder="وصف قصير" className="w-full p-2 border rounded-lg mb-2 text-right" value={item.description} onChange={e => updateItem('hobbies', idx, 'description', e.target.value)} />
+                  <textarea placeholder="الوصف التفصيلي" className="w-full p-2 border rounded-lg text-right" value={item.longDesc} onChange={e => updateItem('hobbies', idx, 'longDesc', e.target.value)} />
                 </div>
               ))}
               <button onClick={() => addItem('hobbies')} className="w-full py-4 border-2 border-dashed border-emerald-300 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-all">+ إضافة هواية جديدة</button>
