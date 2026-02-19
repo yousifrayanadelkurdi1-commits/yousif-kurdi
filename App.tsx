@@ -6,11 +6,16 @@ import Hobbies from './components/Hobbies.tsx';
 import Achievements from './components/Achievements.tsx';
 import TeacherComments from './components/TeacherComments.tsx';
 import Future from './components/Future.tsx';
+import PoetryCorner from './components/PoetryCorner.tsx';
 import Footer from './components/Footer.tsx';
 import AdminDashboard from './components/AdminDashboard.tsx';
 import PersonalQuiz from './components/PersonalQuiz.tsx';
+import CalorieCalculator from './components/CalorieCalculator.tsx';
 import { db } from './firebase.ts';
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { motion, AnimatePresence } from "motion/react";
+
+type ViewMode = 'portfolio' | 'calories';
 
 const App: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -19,6 +24,7 @@ const App: React.FC = () => {
   const [loginError, setLoginError] = useState(false);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>('portfolio');
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "site", "content"), (docSnap) => {
@@ -67,7 +73,7 @@ const App: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-emerald-700 font-bold">جاري تحميل ملف إنجاز يوسف...</p>
+        <p className="text-emerald-700 font-bold">جاري تحميل عالم يوسف...</p>
       </div>
     </div>
   );
@@ -115,20 +121,60 @@ const App: React.FC = () => {
         />
       )}
       
-      <Hero name={data.name} image={data.heroImage} />
+      {/* Navigation Switcher - في الأعلى تماماً */}
+      <nav className="sticky top-0 z-[100] bg-slate-50/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex gap-3">
+          <button 
+            onClick={() => setViewMode('portfolio')}
+            className={`flex-1 py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 group ${viewMode === 'portfolio' ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-emerald-50 text-slate-600 border border-slate-200'}`}
+          >
+            <span className="text-2xl">📂</span>
+            <span className="text-lg md:text-xl font-black">ملف إنجاز يوسف</span>
+          </button>
+          
+          <button 
+            onClick={() => setViewMode('calories')}
+            className={`flex-1 py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 group ${viewMode === 'calories' ? 'bg-orange-600 text-white shadow-lg' : 'hover:bg-orange-50 text-slate-600 border border-slate-200'}`}
+          >
+            <span className="text-2xl">🍎</span>
+            <span className="text-lg md:text-xl font-black">حاسبة السعرات</span>
+          </button>
+        </div>
+      </nav>
+
+      {viewMode === 'portfolio' && <Hero name={data.name} image={data.heroImage} />}
       
-      <main className="max-w-6xl mx-auto px-4 py-12 space-y-24">
-        <About bio={data.bio} />
-        
-        <Achievements items={data.achievements} />
-        
-        <Hobbies items={data.hobbies} />
-
-        <PersonalQuiz />
-
-        <TeacherComments />
-        
-        <Future text={data.futureText} />
+      <main className="max-w-6xl mx-auto px-4 py-12">
+        <AnimatePresence mode="wait">
+          {viewMode === 'portfolio' ? (
+            <motion.div 
+              key="portfolio"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-24"
+            >
+              <About bio={data.bio} />
+              <Achievements items={data.achievements} />
+              <Hobbies items={data.hobbies} />
+              <PoetryCorner />
+              <PersonalQuiz />
+              <TeacherComments />
+              <Future text={data.futureText} />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="calories"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <CalorieCalculator />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       <Footer onAdminAuth={() => setShowLogin(true)} />

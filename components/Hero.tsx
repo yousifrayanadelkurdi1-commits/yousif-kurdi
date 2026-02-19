@@ -15,13 +15,6 @@ const Hero: React.FC<HeroProps> = ({ name, image }) => {
       </div>
       
       <div className="relative text-center text-white px-4 space-y-6 z-10">
-        <div className="inline-block p-1 bg-white/20 rounded-full backdrop-blur-md mb-4">
-          <img 
-            src={image || "https://picsum.photos/seed/yousef/150/150"} 
-            alt={name} 
-            className="w-32 h-32 rounded-full border-4 border-white shadow-2xl object-cover"
-          />
-        </div>
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
           ملف إنجاز <span className="text-yellow-300">{name}</span>
         </h1>

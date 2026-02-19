@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { motion, AnimatePresence } from "motion/react";
 
 const PoetryCorner: React.FC = () => {
   const [topic, setTopic] = useState('');
@@ -52,13 +53,20 @@ const PoetryCorner: React.FC = () => {
           </button>
         </div>
 
-        {poem && (
-          <div className="p-8 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 animate-fade-in">
-            <pre className="whitespace-pre-wrap font-serif text-xl md:text-2xl italic leading-loose text-emerald-100 text-center">
-              {poem}
-            </pre>
-          </div>
-        )}
+        <AnimatePresence>
+          {poem && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="p-8 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20"
+            >
+              <pre className="whitespace-pre-wrap font-serif text-xl md:text-2xl italic leading-loose text-emerald-100 text-center">
+                {poem}
+              </pre>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
